@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Encurtador de URL</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #f2f2f2;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+    #short-url {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Encurtador de URL</h1>
+
+  <form id="url-form">
+    <input type="url" id="original-url" placeholder="Digite a URL aqui" required size="50" />
+    <br />
+    <button type="submit">Encurtar</button>
+  </form>
+
+  <div id="short-url"></div>
+
+  <script>
+    const form = document.getElementById('url-form');
+    const input = document.getElementById('original-url');
+    const resultDiv = document.getElementById('short-url');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const originalUrl = input.value;
+
+      try {
+        const response = await fetch('http://localhost:3000/api/shorten', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ originalUrl })
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao encurtar a URL');
+        }
+
+        const data = await response.json();
+        const fullShortUrl = `http://localhost:3000/${data.shortUrl}`;
+        resultDiv.innerHTML = `
+          <p>URL encurtada: <a href="${fullShortUrl}" target="_blank">${fullShortUrl}</a></p>
+        `;
+      } catch (err) {
+        console.error(err);
+        resultDiv.innerHTML = `<p style="color: red;">Erro: ${err.message}</p>`;
+      }
+    });
+  </script>
+
+</body>
+</html>
